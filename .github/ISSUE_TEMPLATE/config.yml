@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Project Documentation
+    url: https://github.com/your-username/mbcc/blob/main/README.md
+    about: Please check the project documentation first
+  - name: Architecture Documentation
+    url: https://github.com/your-username/mbcc/blob/main/ARCHITECTURE.md
+    about: Review the project architecture and design decisions
