@@ -7,7 +7,7 @@
     "start": "node dist/index.js",
     "dev": "tsc && node dist/index.js",
     "test": "jest",
-    "lint": "eslint . --max-warnings=0"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@xenova/transformers": "^2.17.0",

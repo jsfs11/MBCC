@@ -1,11 +1,10 @@
 import express, { Request, Response, NextFunction, Application } from 'express';
 import { pipeline } from '@xenova/transformers';
 import { fileURLToPath } from 'url';
-import { dirname, resolve as pathResolve } from 'path'; // Import resolve
+import { resolve as pathResolve } from 'path'; // Import resolve
 
 // ES module equivalents for __filename and __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url); // Commented out as it's not currently used
 
 /**
  * Type definitions for the application
@@ -53,7 +52,7 @@ const moodEntries: MoodEntry[] = [];
 /**
  * Sentiment analysis pipeline - initialized lazily
  */
-let sentimentPipeline: any = null;
+let sentimentPipeline: ((text: string) => Promise<Array<{ label: string; score: number }>>) | null = null;
 
 /**
  * Initialize the sentiment analysis pipeline
@@ -187,7 +186,7 @@ const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 function rateLimitMiddleware(req: Request, res: Response, next: NextFunction): void {
   const clientId = req.ip || 'unknown';
   const now = Date.now();
-  const windowStart = now - config.rateLimitWindow;
+  // const windowStart = now - config.rateLimitWindow; // Commented out as it's not currently used
   
   // Clean up old entries
   for (const [key, value] of rateLimitStore.entries()) {
