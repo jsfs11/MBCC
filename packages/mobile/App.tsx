@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useMemo, useCallback, createContext, useContext } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  createContext,
+  useContext,
+} from "react";
 import {
   View,
   Text,
@@ -9,12 +16,11 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  Dimensions,
   KeyboardAvoidingView,
   Platform,
   AccessibilityInfo,
-} from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
 
 // Types
 interface User {
@@ -24,7 +30,7 @@ interface User {
 }
 
 interface UserPreferences {
-  moodTrackingFrequency: 'daily' | 'weekly' | 'monthly';
+  moodTrackingFrequency: "daily" | "weekly" | "monthly";
   selectedEmojis: string[];
   notificationsEnabled: boolean;
 }
@@ -38,7 +44,7 @@ interface MoodEntry {
 }
 
 interface SentimentResult {
-  label: 'POSITIVE' | 'NEGATIVE';
+  label: "POSITIVE" | "NEGATIVE";
   score: number;
   confidence: number;
 }
@@ -54,7 +60,7 @@ interface AppState {
 interface AppContextType extends AppState {
   setUser: (user: User) => void;
   completeOnboarding: () => void;
-  addMoodEntry: (entry: Omit<MoodEntry, 'id' | 'timestamp'>) => void;
+  addMoodEntry: (entry: Omit<MoodEntry, "id" | "timestamp">) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
 }
@@ -70,20 +76,31 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 const useAppContext = (): AppContextType => {
   const context = useContext(AppContext);
   if (!context) {
-    throw new Error('useAppContext must be used within an AppProvider');
+    throw new Error("useAppContext must be used within an AppProvider");
   }
   return context;
 };
 
 // Constants
-const EMOJI_OPTIONS = ['😊', '😢', '😡', '😴', '🤔', '😍', '😰', '🤗', '😎', '🤯'];
+const EMOJI_OPTIONS = [
+  "😊",
+  "😢",
+  "😡",
+  "😴",
+  "🤔",
+  "😍",
+  "😰",
+  "🤗",
+  "😎",
+  "🤯",
+];
 const FREQUENCY_OPTIONS = [
-  { value: 'daily' as const, label: 'Daily' },
-  { value: 'weekly' as const, label: 'Weekly' },
-  { value: 'monthly' as const, label: 'Monthly' },
+  { value: "daily" as const, label: "Daily" },
+  { value: "weekly" as const, label: "Weekly" },
+  { value: "monthly" as const, label: "Monthly" },
 ];
 
-const { width: screenWidth } = Dimensions.get('window');
+// const { width: _screenWidth } = Dimensions.get("window"); // Commented out as it's not currently used
 
 // Utility Functions
 
@@ -95,21 +112,43 @@ const { width: screenWidth } = Dimensions.get('window');
  */
 const analyzeSentiment = async (text: string): Promise<SentimentResult> => {
   // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
   // Simple keyword-based sentiment analysis as fallback
-  const positiveWords = ['happy', 'good', 'great', 'awesome', 'love', 'amazing', 'wonderful'];
-  const negativeWords = ['sad', 'bad', 'terrible', 'hate', 'awful', 'horrible', 'angry'];
-  
+  const positiveWords = [
+    "happy",
+    "good",
+    "great",
+    "awesome",
+    "love",
+    "amazing",
+    "wonderful",
+  ];
+  const negativeWords = [
+    "sad",
+    "bad",
+    "terrible",
+    "hate",
+    "awful",
+    "horrible",
+    "angry",
+  ];
+
   const lowerText = text.toLowerCase();
-  const positiveCount = positiveWords.filter(word => lowerText.includes(word)).length;
-  const negativeCount = negativeWords.filter(word => lowerText.includes(word)).length;
-  
+  const positiveCount = positiveWords.filter((word) =>
+    lowerText.includes(word),
+  ).length;
+  const negativeCount = negativeWords.filter((word) =>
+    lowerText.includes(word),
+  ).length;
+
   const isPositive = positiveCount > negativeCount;
-  const score = isPositive ? 0.7 + Math.random() * 0.3 : 0.3 + Math.random() * 0.4;
-  
+  const score = isPositive
+    ? 0.7 + Math.random() * 0.3
+    : 0.3 + Math.random() * 0.4;
+
   return {
-    label: isPositive ? 'POSITIVE' : 'NEGATIVE',
+    label: isPositive ? "POSITIVE" : "NEGATIVE",
     score,
     confidence: 0.8 + Math.random() * 0.2,
   };
@@ -122,13 +161,13 @@ const analyzeSentiment = async (text: string): Promise<SentimentResult> => {
  */
 const validateName = (name: string): string | null => {
   if (!name.trim()) {
-    return 'Name is required';
+    return "Name is required";
   }
   if (name.trim().length < 2) {
-    return 'Name must be at least 2 characters';
+    return "Name must be at least 2 characters";
   }
   if (name.trim().length > 50) {
-    return 'Name must be less than 50 characters';
+    return "Name must be less than 50 characters";
   }
   return null;
 };
@@ -140,13 +179,13 @@ const validateName = (name: string): string | null => {
  */
 const validateMoodText = (text: string): string | null => {
   if (!text.trim()) {
-    return 'Please describe your mood';
+    return "Please describe your mood";
   }
   if (text.trim().length < 3) {
-    return 'Please provide more detail about your mood';
+    return "Please provide more detail about your mood";
   }
   if (text.trim().length > 500) {
-    return 'Mood description must be less than 500 characters';
+    return "Mood description must be less than 500 characters";
   }
   return null;
 };
@@ -161,7 +200,10 @@ interface ErrorBoundaryProps {
   children?: React.ReactNode;
 }
 
-class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+class ErrorBoundary extends React.Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   public state: ErrorBoundaryState = { hasError: false, error: null };
 
   constructor(props: ErrorBoundaryProps) {
@@ -173,7 +215,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-    console.error('Error caught by boundary:', error, errorInfo);
+    console.error("Error caught by boundary:", error, errorInfo);
   }
 
   render(): React.ReactNode {
@@ -182,7 +224,8 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
         <SafeAreaView style={styles.errorContainer}>
           <Text style={styles.errorTitle}>Something went wrong</Text>
           <Text style={styles.errorMessage}>
-            We're sorry, but something unexpected happened. Please restart the app.
+            We're sorry, but something unexpected happened. Please restart the
+            app.
           </Text>
           <TouchableOpacity
             style={styles.errorButton}
@@ -210,75 +253,87 @@ interface EmojiSelectorProps {
   onEmojiToggle: (emoji: string) => void;
 }
 
-const EmojiSelector: React.FC<EmojiSelectorProps> = React.memo(({ selectedEmojis, onEmojiToggle }: EmojiSelectorProps) => {
-  return (
-    <View style={styles.emojiContainer}>
-      <Text style={styles.sectionTitle}>Choose your mood emojis</Text>
-      <Text style={styles.sectionSubtitle}>
-        Select the emojis that best represent your moods
-      </Text>
-      <View style={styles.emojiGrid}>
-        {EMOJI_OPTIONS.map((emoji) => (
-          <TouchableOpacity
-            key={emoji}
-            style={[
-              styles.emojiButton,
-              selectedEmojis.includes(emoji) && styles.emojiButtonSelected,
-            ]}
-            onPress={() => onEmojiToggle(emoji)}
-            accessibilityRole="button"
-            accessibilityLabel={`${emoji} emoji`}
-            accessibilityState={{ selected: selectedEmojis.includes(emoji) }}
-          >
-            <Text style={styles.emojiText}>{emoji}</Text>
-          </TouchableOpacity>
-        ))}
+const EmojiSelector: React.FC<EmojiSelectorProps> = React.memo(
+  ({ selectedEmojis, onEmojiToggle }: EmojiSelectorProps) => {
+    return (
+      <View style={styles.emojiContainer}>
+        <Text style={styles.sectionTitle}>Choose your mood emojis</Text>
+        <Text style={styles.sectionSubtitle}>
+          Select the emojis that best represent your moods
+        </Text>
+        <View style={styles.emojiGrid}>
+          {EMOJI_OPTIONS.map((emoji) => (
+            <TouchableOpacity
+              key={emoji}
+              style={[
+                styles.emojiButton,
+                selectedEmojis.includes(emoji) && styles.emojiButtonSelected,
+              ]}
+              onPress={() => onEmojiToggle(emoji)}
+              accessibilityRole="button"
+              accessibilityLabel={`${emoji} emoji`}
+              accessibilityState={{ selected: selectedEmojis.includes(emoji) }}
+            >
+              <Text style={styles.emojiText}>{emoji}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
-    </View>
-  );
-});
+    );
+  },
+);
 
-EmojiSelector.displayName = 'EmojiSelector';
+EmojiSelector.displayName = "EmojiSelector";
 
 /**
  * Frequency selector component for onboarding
  */
 interface FrequencySelectorProps {
-  selectedFrequency: UserPreferences['moodTrackingFrequency'];
-  onFrequencySelect: (frequency: UserPreferences['moodTrackingFrequency']) => void;
+  selectedFrequency: UserPreferences["moodTrackingFrequency"];
+  onFrequencySelect: (
+    frequency: UserPreferences["moodTrackingFrequency"],
+  ) => void;
 }
 
-const FrequencySelector: React.FC<FrequencySelectorProps> = React.memo(({ selectedFrequency, onFrequencySelect }: FrequencySelectorProps) => {
-  return (
-    <View style={styles.frequencyContainer}>
-      <Text style={styles.sectionTitle}>How often would you like to track your mood?</Text>
-      {FREQUENCY_OPTIONS.map((option) => (
-        <TouchableOpacity
-          key={option.value}
-          style={[
-            styles.frequencyButton,
-            selectedFrequency === option.value && styles.frequencyButtonSelected,
-          ]}
-          onPress={() => onFrequencySelect(option.value)}
-          accessibilityRole="button"
-          accessibilityLabel={`Track mood ${option.label.toLowerCase()}`}
-          accessibilityState={{ selected: selectedFrequency === option.value }}
-        >
-          <Text
+const FrequencySelector: React.FC<FrequencySelectorProps> = React.memo(
+  ({ selectedFrequency, onFrequencySelect }: FrequencySelectorProps) => {
+    return (
+      <View style={styles.frequencyContainer}>
+        <Text style={styles.sectionTitle}>
+          How often would you like to track your mood?
+        </Text>
+        {FREQUENCY_OPTIONS.map((option) => (
+          <TouchableOpacity
+            key={option.value}
             style={[
-              styles.frequencyButtonText,
-              selectedFrequency === option.value && styles.frequencyButtonTextSelected,
+              styles.frequencyButton,
+              selectedFrequency === option.value &&
+                styles.frequencyButtonSelected,
             ]}
+            onPress={() => onFrequencySelect(option.value)}
+            accessibilityRole="button"
+            accessibilityLabel={`Track mood ${option.label.toLowerCase()}`}
+            accessibilityState={{
+              selected: selectedFrequency === option.value,
+            }}
           >
-            {option.label}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-});
+            <Text
+              style={[
+                styles.frequencyButtonText,
+                selectedFrequency === option.value &&
+                  styles.frequencyButtonTextSelected,
+              ]}
+            >
+              {option.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    );
+  },
+);
 
-FrequencySelector.displayName = 'FrequencySelector';
+FrequencySelector.displayName = "FrequencySelector";
 
 /**
  * Onboarding screen component
@@ -286,25 +341,29 @@ FrequencySelector.displayName = 'FrequencySelector';
 const OnboardingScreen: React.FC = React.memo(() => {
   const { completeOnboarding, setUser, setError } = useAppContext();
   const [currentStep, setCurrentStep] = useState(0);
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [nameError, setNameError] = useState<string | null>(null);
   const [selectedEmojis, setSelectedEmojis] = useState<string[]>([]);
-  const [frequency, setFrequency] = useState<UserPreferences['moodTrackingFrequency']>('daily');
+  const [frequency, setFrequency] =
+    useState<UserPreferences["moodTrackingFrequency"]>("daily");
 
   const handleEmojiToggle = useCallback((emoji: string) => {
     setSelectedEmojis((prev: string[]) =>
       prev.includes(emoji)
         ? prev.filter((e: string) => e !== emoji)
-        : [...prev, emoji]
+        : [...prev, emoji],
     );
   }, []);
 
-  const handleNameChange = useCallback((text: string) => {
-    setName(text);
-    if (nameError) {
-      setNameError(null);
-    }
-  }, [nameError]);
+  const handleNameChange = useCallback(
+    (text: string) => {
+      setName(text);
+      if (nameError) {
+        setNameError(null);
+      }
+    },
+    [nameError],
+  );
 
   const handleNext = useCallback(() => {
     if (currentStep === 0) {
@@ -314,9 +373,9 @@ const OnboardingScreen: React.FC = React.memo(() => {
         return;
       }
     }
-    
+
     if (currentStep === 1 && selectedEmojis.length === 0) {
-      setError('Please select at least one emoji');
+      setError("Please select at least one emoji");
       return;
     }
 
@@ -337,7 +396,7 @@ const OnboardingScreen: React.FC = React.memo(() => {
         notificationsEnabled: true,
       },
     };
-    
+
     setUser(user);
     completeOnboarding();
   }, [name, frequency, selectedEmojis, setUser, completeOnboarding]);
@@ -388,31 +447,37 @@ const OnboardingScreen: React.FC = React.memo(() => {
       default:
         return null;
     }
-  }, [currentStep, name, nameError, selectedEmojis, frequency, handleEmojiToggle, handleNameChange]);
+  }, [
+    currentStep,
+    name,
+    nameError,
+    selectedEmojis,
+    frequency,
+    handleEmojiToggle,
+    handleNameChange,
+  ]);
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container} 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
-              <View 
+              <View
                 style={[
-                  styles.progressFill, 
-                  { width: `${((currentStep + 1) / 3) * 100}%` }
-                ]} 
+                  styles.progressFill,
+                  { width: `${((currentStep + 1) / 3) * 100}%` },
+                ]}
               />
             </View>
-            <Text style={styles.progressText}>
-              Step {currentStep + 1} of 3
-            </Text>
+            <Text style={styles.progressText}>Step {currentStep + 1} of 3</Text>
           </View>
-          
+
           {renderStep}
-          
+
           <View style={styles.buttonContainer}>
             {currentStep > 0 && (
               <TouchableOpacity
@@ -428,10 +493,12 @@ const OnboardingScreen: React.FC = React.memo(() => {
               style={styles.primaryButton}
               onPress={handleNext}
               accessibilityRole="button"
-              accessibilityLabel={currentStep === 2 ? 'Complete setup' : 'Continue to next step'}
+              accessibilityLabel={
+                currentStep === 2 ? "Complete setup" : "Continue to next step"
+              }
             >
               <Text style={styles.primaryButtonText}>
-                {currentStep === 2 ? 'Complete' : 'Next'}
+                {currentStep === 2 ? "Complete" : "Next"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -441,27 +508,31 @@ const OnboardingScreen: React.FC = React.memo(() => {
   );
 });
 
-OnboardingScreen.displayName = 'OnboardingScreen';
+OnboardingScreen.displayName = "OnboardingScreen";
 
 /**
  * Main app screen component
  */
 const MainScreen: React.FC = React.memo(() => {
-  const { user, addMoodEntry, setLoading, setError, isLoading } = useAppContext();
-  const [selectedEmoji, setSelectedEmoji] = useState('');
-  const [moodText, setMoodText] = useState('');
+  const { user, addMoodEntry, setLoading, setError, isLoading } =
+    useAppContext();
+  const [selectedEmoji, setSelectedEmoji] = useState("");
+  const [moodText, setMoodText] = useState("");
   const [moodTextError, setMoodTextError] = useState<string | null>(null);
 
-  const handleMoodTextChange = useCallback((text: string) => {
-    setMoodText(text);
-    if (moodTextError) {
-      setMoodTextError(null);
-    }
-  }, [moodTextError]);
+  const handleMoodTextChange = useCallback(
+    (text: string) => {
+      setMoodText(text);
+      if (moodTextError) {
+        setMoodTextError(null);
+      }
+    },
+    [moodTextError],
+  );
 
   const handleSubmitMood = useCallback(async () => {
     if (!selectedEmoji) {
-      setError('Please select an emoji');
+      setError("Please select an emoji");
       return;
     }
 
@@ -474,9 +545,9 @@ const MainScreen: React.FC = React.memo(() => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const sentiment = await analyzeSentiment(moodText);
-      
+
       addMoodEntry({
         emoji: selectedEmoji,
         text: moodText.trim(),
@@ -484,38 +555,36 @@ const MainScreen: React.FC = React.memo(() => {
       });
 
       // Reset form
-      setSelectedEmoji('');
-      setMoodText('');
-      
+      setSelectedEmoji("");
+      setMoodText("");
+
       Alert.alert(
-        'Mood Recorded!',
-        `Your mood has been saved with ${sentiment.confidence > 0.8 ? 'high' : 'moderate'} confidence.`,
-        [{ text: 'OK' }]
+        "Mood Recorded!",
+        `Your mood has been saved with ${sentiment.confidence > 0.8 ? "high" : "moderate"} confidence.`,
+        [{ text: "OK" }],
       );
     } catch (error) {
-      setError('Failed to analyze mood. Please try again.');
-      console.error('Mood submission error:', error);
+      setError("Failed to analyze mood. Please try again.");
+      console.error("Mood submission error:", error);
     } finally {
       setLoading(false);
     }
   }, [selectedEmoji, moodText, addMoodEntry, setLoading, setError]);
 
-  const availableEmojis = useMemo(() => 
-    user?.preferences.selectedEmojis || EMOJI_OPTIONS.slice(0, 5),
-    [user?.preferences.selectedEmojis]
+  const availableEmojis = useMemo(
+    () => user?.preferences.selectedEmojis || EMOJI_OPTIONS.slice(0, 5),
+    [user?.preferences.selectedEmojis],
   );
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container} 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.headerContainer}>
-            <Text style={styles.welcomeTitle}>
-              Hello, {user?.name}! 👋
-            </Text>
+            <Text style={styles.welcomeTitle}>Hello, {user?.name}! 👋</Text>
             <Text style={styles.welcomeSubtitle}>
               How are you feeling today?
             </Text>
@@ -558,9 +627,7 @@ const MainScreen: React.FC = React.memo(() => {
                 accessibilityLabel="Mood description input"
                 accessibilityHint="Describe your current mood in detail"
               />
-              <Text style={styles.characterCount}>
-                {moodText.length}/500
-              </Text>
+              <Text style={styles.characterCount}>{moodText.length}/500</Text>
               {moodTextError && (
                 <Text style={styles.errorText} accessibilityRole="alert">
                   {moodTextError}
@@ -571,13 +638,16 @@ const MainScreen: React.FC = React.memo(() => {
             <TouchableOpacity
               style={[
                 styles.primaryButton,
-                (!selectedEmoji || !moodText.trim() || isLoading) && styles.primaryButtonDisabled,
+                (!selectedEmoji || !moodText.trim() || isLoading) &&
+                  styles.primaryButtonDisabled,
               ]}
               onPress={handleSubmitMood}
               disabled={!selectedEmoji || !moodText.trim() || isLoading}
               accessibilityRole="button"
               accessibilityLabel="Submit mood entry"
-              accessibilityState={{ disabled: !selectedEmoji || !moodText.trim() || isLoading }}
+              accessibilityState={{
+                disabled: !selectedEmoji || !moodText.trim() || isLoading,
+              }}
             >
               {isLoading ? (
                 <ActivityIndicator color="#fff" />
@@ -592,7 +662,7 @@ const MainScreen: React.FC = React.memo(() => {
   );
 });
 
-MainScreen.displayName = 'MainScreen';
+MainScreen.displayName = "MainScreen";
 
 /**
  * App provider component for state management
@@ -601,7 +671,9 @@ interface AppProviderProps {
   children: React.ReactNode;
 }
 
-const AppProvider: React.FC<AppProviderProps> = ({ children }: AppProviderProps) => {
+const AppProvider: React.FC<AppProviderProps> = ({
+  children,
+}: AppProviderProps) => {
   const [state, setState] = useState<AppState>({
     user: null,
     isOnboarding: true,
@@ -618,17 +690,20 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }: AppProviderProps)
     setState((prev: AppState) => ({ ...prev, isOnboarding: false }));
   }, []);
 
-  const addMoodEntry = useCallback((entry: Omit<MoodEntry, 'id' | 'timestamp'>) => {
-    const newEntry: MoodEntry = {
-      ...entry,
-      id: Date.now().toString(),
-      timestamp: new Date(),
-    };
-    setState((prev: AppState) => ({
-      ...prev,
-      moodEntries: [newEntry, ...prev.moodEntries],
-    }));
-  }, []);
+  const addMoodEntry = useCallback(
+    (entry: Omit<MoodEntry, "id" | "timestamp">) => {
+      const newEntry: MoodEntry = {
+        ...entry,
+        id: Date.now().toString(),
+        timestamp: new Date(),
+      };
+      setState((prev: AppState) => ({
+        ...prev,
+        moodEntries: [newEntry, ...prev.moodEntries],
+      }));
+    },
+    [],
+  );
 
   const setLoading = useCallback((loading: boolean) => {
     setState((prev: AppState) => ({ ...prev, isLoading: loading }));
@@ -638,28 +713,29 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }: AppProviderProps)
     setState((prev: AppState) => ({ ...prev, error }));
   }, []);
 
-  const contextValue = useMemo<AppContextType>(() => ({
-    ...state,
-    setUser,
-    completeOnboarding,
-    addMoodEntry,
-    setLoading,
-    setError,
-  }), [state, setUser, completeOnboarding, addMoodEntry, setLoading, setError]);
+  const contextValue = useMemo<AppContextType>(
+    () => ({
+      ...state,
+      setUser,
+      completeOnboarding,
+      addMoodEntry,
+      setLoading,
+      setError,
+    }),
+    [state, setUser, completeOnboarding, addMoodEntry, setLoading, setError],
+  );
 
   // Show error alert when error state changes
   useEffect(() => {
     if (state.error) {
-      Alert.alert('Error', state.error, [
-        { text: 'OK', onPress: () => setError(null) }
+      Alert.alert("Error", state.error, [
+        { text: "OK", onPress: () => setError(null) },
       ]);
     }
   }, [state.error, setError]);
 
   return (
-    <AppContext.Provider value={contextValue}>
-      {children}
-    </AppContext.Provider>
+    <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>
   );
 };
 
@@ -667,15 +743,15 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }: AppProviderProps)
  * Main App component
  */
 const App: React.FC = () => {
-  const [isAccessibilityEnabled, setIsAccessibilityEnabled] = useState(false);
+  const [_isAccessibilityEnabled, setIsAccessibilityEnabled] = useState(false);
 
   useEffect(() => {
     // Check accessibility settings
     AccessibilityInfo.isReduceMotionEnabled().then(setIsAccessibilityEnabled);
-    
+
     const subscription = AccessibilityInfo.addEventListener(
-      'reduceMotionChanged',
-      setIsAccessibilityEnabled
+      "reduceMotionChanged",
+      setIsAccessibilityEnabled,
     );
 
     return () => subscription?.remove();
@@ -704,7 +780,7 @@ const AppContent: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: "#f8f9fa",
   },
   scrollContainer: {
     flexGrow: 1,
@@ -712,19 +788,19 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     marginBottom: 30,
-    alignItems: 'center',
+    alignItems: "center",
   },
   welcomeTitle: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#2c3e50',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#2c3e50",
+    textAlign: "center",
     marginBottom: 8,
   },
   welcomeSubtitle: {
     fontSize: 16,
-    color: '#7f8c8d',
-    textAlign: 'center',
+    color: "#7f8c8d",
+    textAlign: "center",
     lineHeight: 24,
   },
   progressContainer: {
@@ -732,35 +808,35 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: 4,
-    backgroundColor: '#e9ecef',
+    backgroundColor: "#e9ecef",
     borderRadius: 2,
     marginBottom: 8,
   },
   progressFill: {
-    height: '100%',
-    backgroundColor: '#007bff',
+    height: "100%",
+    backgroundColor: "#007bff",
     borderRadius: 2,
   },
   progressText: {
     fontSize: 14,
-    color: '#6c757d',
-    textAlign: 'center',
+    color: "#6c757d",
+    textAlign: "center",
   },
   stepContainer: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '600',
-    color: '#2c3e50',
+    fontWeight: "600",
+    color: "#2c3e50",
     marginBottom: 8,
-    textAlign: 'center',
+    textAlign: "center",
   },
   sectionSubtitle: {
     fontSize: 14,
-    color: '#7f8c8d',
-    textAlign: 'center',
+    color: "#7f8c8d",
+    textAlign: "center",
     marginBottom: 24,
     lineHeight: 20,
   },
@@ -769,171 +845,171 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 16,
-    fontWeight: '500',
-    color: '#2c3e50',
+    fontWeight: "500",
+    color: "#2c3e50",
     marginBottom: 8,
   },
   textInput: {
     borderWidth: 1,
-    borderColor: '#dee2e6',
+    borderColor: "#dee2e6",
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    backgroundColor: '#fff',
-    color: '#2c3e50',
+    backgroundColor: "#fff",
+    color: "#2c3e50",
   },
   textArea: {
     borderWidth: 1,
-    borderColor: '#dee2e6',
+    borderColor: "#dee2e6",
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    backgroundColor: '#fff',
-    color: '#2c3e50',
+    backgroundColor: "#fff",
+    color: "#2c3e50",
     minHeight: 100,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   textInputError: {
-    borderColor: '#dc3545',
+    borderColor: "#dc3545",
   },
   characterCount: {
     fontSize: 12,
-    color: '#6c757d',
-    textAlign: 'right',
+    color: "#6c757d",
+    textAlign: "right",
     marginTop: 4,
   },
   errorText: {
     fontSize: 14,
-    color: '#dc3545',
+    color: "#dc3545",
     marginTop: 4,
   },
   emojiContainer: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   emojiGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
     gap: 12,
   },
   emojiButton: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderWidth: 2,
-    borderColor: '#dee2e6',
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderColor: "#dee2e6",
+    justifyContent: "center",
+    alignItems: "center",
     margin: 4,
   },
   emojiButtonSelected: {
-    borderColor: '#007bff',
-    backgroundColor: '#e3f2fd',
+    borderColor: "#007bff",
+    backgroundColor: "#e3f2fd",
   },
   emojiText: {
     fontSize: 24,
   },
   frequencyContainer: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   frequencyButton: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: '#dee2e6',
+    borderColor: "#dee2e6",
     borderRadius: 8,
     padding: 16,
     marginBottom: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
   frequencyButtonSelected: {
-    borderColor: '#007bff',
-    backgroundColor: '#e3f2fd',
+    borderColor: "#007bff",
+    backgroundColor: "#e3f2fd",
   },
   frequencyButtonText: {
     fontSize: 16,
-    color: '#2c3e50',
-    fontWeight: '500',
+    color: "#2c3e50",
+    fontWeight: "500",
   },
   frequencyButtonTextSelected: {
-    color: '#007bff',
+    color: "#007bff",
   },
   moodInputContainer: {
     flex: 1,
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 30,
     gap: 12,
   },
   primaryButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: "#007bff",
     borderRadius: 8,
     padding: 16,
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     minHeight: 48,
   },
   primaryButtonDisabled: {
-    backgroundColor: '#6c757d',
+    backgroundColor: "#6c757d",
   },
   primaryButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   secondaryButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: '#007bff',
+    borderColor: "#007bff",
     borderRadius: 8,
     padding: 16,
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     minHeight: 48,
   },
   secondaryButtonText: {
-    color: '#007bff',
+    color: "#007bff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   errorContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: "#f8f9fa",
   },
   errorTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#dc3545',
+    fontWeight: "bold",
+    color: "#dc3545",
     marginBottom: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   errorMessage: {
     fontSize: 16,
-    color: '#6c757d',
-    textAlign: 'center',
+    color: "#6c757d",
+    textAlign: "center",
     lineHeight: 24,
     marginBottom: 24,
   },
   errorButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: "#007bff",
     borderRadius: 8,
     padding: 16,
     minWidth: 120,
-    alignItems: 'center',
+    alignItems: "center",
   },
   errorButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
 

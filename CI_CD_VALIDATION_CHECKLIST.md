@@ -128,7 +128,7 @@ pnpm clean
 - [ ] Scheduled for appropriate times
 
 ### First Run Validation
-- [ ] Dependabot creates initial PRs (may take 24-48 hours)
+- [x] Dependabot creates initial PRs (may take 24-48 hours)
 - [ ] PRs have proper labels and formatting
 - [ ] CI runs successfully on Dependabot PRs
 
