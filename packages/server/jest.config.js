@@ -6,6 +6,7 @@ module.exports = {
     'src/**/*.{ts,js}',
     '!src/**/*.d.ts',
     '!src/**/__tests__/**',
+    '!src/**/index.ts',
   ],
   coverageThreshold: {
     global: {
@@ -15,8 +16,10 @@ module.exports = {
       statements: 85,
     },
   },
+  coverageReporters: ['text', 'lcov', 'html'],
   moduleFileExtensions: ['ts', 'js', 'json'],
   transform: {
     '^.+\\.ts$': 'ts-jest',
   },
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
 };

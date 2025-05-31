@@ -10,6 +10,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "test": "turbo run test",
+    "test:coverage": "turbo run test -- --coverage",
     "lint": "turbo run lint",
     "clean": "turbo run clean"
   },
@@ -21,9 +22,5 @@
   "engines": {
     "node": ">=20.0.0",
     "pnpm": ">=8.0.0"
-  },
-  "dependencies": {
-    "expo-status-bar": "^2.2.3",
-    "react-native": "^0.79.2"
   }
 }
