@@ -1,4 +1,11 @@
 import request from 'supertest';
+import { jest } from '@jest/globals';
+
+// Mock transformers to avoid loading ESM modules during tests
+jest.mock('@xenova/transformers', () => ({
+  pipeline: jest.fn(() => async () => []),
+}));
+
 import { createApp } from '../src/index';
 
 describe('GET /api/health', () => {
