@@ -1,7 +1,6 @@
 import express, { Request, Response, NextFunction, Application } from 'express';
 import { pipeline } from '@xenova/transformers';
-import { fileURLToPath } from 'url';
-import { resolve as pathResolve } from 'path'; // Import resolve
+
 
 // ES module equivalents for __filename and __dirname
 // const __filename = fileURLToPath(import.meta.url); // Commented out as it's not currently used
@@ -60,10 +59,10 @@ let sentimentPipeline: ((text: string) => Promise<Array<{ label: string; score: 
 async function initializeSentimentPipeline(): Promise<void> {
   try {
     console.log('Initializing sentiment analysis pipeline...');
-    sentimentPipeline = await pipeline(
+    sentimentPipeline = (await pipeline(
       'sentiment-analysis',
-      'Xenova/distilbert-base-uncased-finetuned-sst-2-english' // Trying a model from the library authors
-    );
+      'Xenova/distilbert-base-uncased-finetuned-sst-2-english'
+    )) as unknown as (text: string) => Promise<Array<{ label: string; score: number }>>;
     console.log('Sentiment analysis pipeline initialized successfully');
   } catch (error) {
     console.error('Failed to initialize sentiment analysis pipeline:', error);
@@ -80,7 +79,7 @@ async function analyzeSentiment(text: string): Promise<SentimentResponse> {
   }
 
   try {
-    const result = await sentimentPipeline(text);
+    const result = await sentimentPipeline!(text);
     const sentiment = result[0];
     
     // Normalize the sentiment label to our expected format
@@ -383,7 +382,7 @@ async function startServer(): Promise<void> {
     });
     
     // Graceful shutdown handling
-    const gracefulShutdown = (signal: string) => {
+    const gracefulShutdown = (signal: string): void => {
       console.log(JSON.stringify({
         timestamp: new Date().toISOString(),
         message: `Received ${signal}, starting graceful shutdown...`
@@ -434,19 +433,6 @@ async function startServer(): Promise<void> {
     console.error('Failed to start server:', error);
     process.exit(1);
   }
-}
-
-// Start the server if this file is run directly
-// Debugging the condition for starting the server
-const scriptPath = fileURLToPath(import.meta.url);
-const entryPointPath = pathResolve(process.argv[1]);
-
-if (scriptPath === entryPointPath) {
-  // Script identified as main entry point. Starting server...
-  startServer().catch((error) => {
-    console.error('Server startup failed:', error);
-    process.exit(1);
-  });
 }
 
 export { createApp, startServer };
