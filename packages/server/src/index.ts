@@ -325,8 +325,10 @@ function createApp(): Application {
   
   // Retrieve mood history endpoint
   app.get('/api/moods', (req: Request, res: Response) => {
-    const limit = parseInt(req.query.limit as string) || 50;
-    const offset = parseInt(req.query.offset as string) || 0;
+    const limitParam = parseInt(req.query.limit as string, 10);
+    const offsetParam = parseInt(req.query.offset as string, 10);
+    const limit = Number.isNaN(limitParam) ? 50 : limitParam;
+    const offset = Number.isNaN(offsetParam) ? 0 : offsetParam;
     
     const paginatedEntries = moodEntries
       .slice()
