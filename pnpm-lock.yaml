@@ -44,10 +44,10 @@ importers:
         version: 3.2.0(eslint@8.57.1)(jest@29.7.0)(prettier@3.5.3)(typescript@5.4.2)
       '@testing-library/jest-native':
         specifier: ^5.4.3
-        version: 5.4.3(react-native@0.74.1)(react-test-renderer@18.2.0)(react@18.2.0)
+        version: 5.4.3(react-native@0.74.1)(react-test-renderer@19.1.0)(react@18.2.0)
       '@testing-library/react-native':
         specifier: ^12.4.2
-        version: 12.9.0(jest@29.7.0)(react-native@0.74.1)(react-test-renderer@18.2.0)(react@18.2.0)
+        version: 12.9.0(jest@29.7.0)(react-native@0.74.1)(react-test-renderer@19.1.0)(react@18.2.0)
       '@types/react':
         specifier: ~18.2.45
         version: 18.2.79
@@ -85,8 +85,8 @@ importers:
         specifier: ^3.2.0
         version: 3.5.3
       react-test-renderer:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
+        specifier: 19.1.0
+        version: 19.1.0(react@18.2.0)
       typescript:
         specifier: 5.4.2
         version: 5.4.2
@@ -1867,7 +1867,7 @@ packages:
       babel-plugin-polyfill-corejs2: 0.4.13(@babel/core@7.27.4)
       babel-plugin-polyfill-corejs3: 0.11.1(@babel/core@7.27.4)
       babel-plugin-polyfill-regenerator: 0.6.4(@babel/core@7.27.4)
-      core-js-compat: 3.42.0
+      core-js-compat: 3.43.0
       semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
@@ -3708,7 +3708,7 @@ packages:
     dependencies:
       '@sinonjs/commons': 3.0.1
 
-  /@testing-library/jest-native@5.4.3(react-native@0.74.1)(react-test-renderer@18.2.0)(react@18.2.0):
+  /@testing-library/jest-native@5.4.3(react-native@0.74.1)(react-test-renderer@19.1.0)(react@18.2.0):
     resolution: {integrity: sha512-/sSDGaOuE+PJ1Z9Kp4u7PQScSVVXGud59I/qsBFFJvIbcn4P6yYw6cBnBmbPF+X9aRIsTJRDl6gzw5ZkJNm66w==}
     deprecated: |-
       DEPRECATED: This package is no longer maintained.
@@ -3726,11 +3726,11 @@ packages:
       pretty-format: 29.7.0
       react: 18.2.0
       react-native: 0.74.1(@babel/core@7.27.4)(@babel/preset-env@7.27.2)(@types/react@18.2.79)(react@18.2.0)
-      react-test-renderer: 18.2.0(react@18.2.0)
+      react-test-renderer: 19.1.0(react@18.2.0)
       redent: 3.0.0
     dev: true
 
-  /@testing-library/react-native@12.9.0(jest@29.7.0)(react-native@0.74.1)(react-test-renderer@18.2.0)(react@18.2.0):
+  /@testing-library/react-native@12.9.0(jest@29.7.0)(react-native@0.74.1)(react-test-renderer@19.1.0)(react@18.2.0):
     resolution: {integrity: sha512-wIn/lB1FjV2N4Q7i9PWVRck3Ehwq5pkhAef5X5/bmQ78J/NoOsGbVY2/DG5Y9Lxw+RfE+GvSEh/fe5Tz6sKSvw==}
     peerDependencies:
       jest: '>=28.0.0'
@@ -3746,7 +3746,7 @@ packages:
       pretty-format: 29.7.0
       react: 18.2.0
       react-native: 0.74.1(@babel/core@7.27.4)(@babel/preset-env@7.27.2)(@types/react@18.2.79)(react@18.2.0)
-      react-test-renderer: 18.2.0(react@18.2.0)
+      react-test-renderer: 19.1.0(react@18.2.0)
       redent: 3.0.0
     dev: true
 
@@ -5318,6 +5318,11 @@ packages:
 
   /core-js-compat@3.42.0:
     resolution: {integrity: sha512-bQasjMfyDGyaeWKBIu33lHh9qlSR0MFE/Nmc6nMjf/iU9b3rSMdAYz1Baxrv4lPdGUsTqZudHA4jIGSJy0SWZQ==}
+    dependencies:
+      browserslist: 4.25.0
+
+  /core-js-compat@3.43.0:
+    resolution: {integrity: sha512-2GML2ZsCc5LR7hZYz4AXmjQw8zuy2T//2QntwdnpuYI7jteT6GVYJL7F6C2C57R7gSYrcqVW3lAALefdbhBLDA==}
     dependencies:
       browserslist: 4.25.0
 
@@ -9403,6 +9408,10 @@ packages:
   /react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
+  /react-is@19.1.0:
+    resolution: {integrity: sha512-Oe56aUPnkHyyDxxkvqtd7KkdQP5uIUfHxd5XTb3wE9d/kRnZLmKbDB0GWk919tdQ+mxxPtG6EAs6RMT6i1qtHg==}
+    dev: true
+
   /react-native-edge-to-edge@1.6.0(react-native@0.74.1)(react@18.2.0):
     resolution: {integrity: sha512-2WCNdE3Qd6Fwg9+4BpbATUxCLcouF6YRY7K+J36KJ4l3y+tWN6XCqAC4DuoGblAAbb2sLkhEDp4FOlbOIot2Og==}
     peerDependencies:
@@ -9607,15 +9616,14 @@ packages:
       react: 18.2.0
       react-is: 18.3.1
 
-  /react-test-renderer@18.2.0(react@18.2.0):
-    resolution: {integrity: sha512-JWD+aQ0lh2gvh4NM3bBM42Kx+XybOxCpgYK7F8ugAlpaTSnWsX+39Z4XkOykGZAHrjwwTZT3x3KxswVWxHPUqA==}
+  /react-test-renderer@19.1.0(react@18.2.0):
+    resolution: {integrity: sha512-jXkSl3CpvPYEF+p/eGDLB4sPoDX8pKkYvRl9+rR8HxLY0X04vW7hCm1/0zHoUSjPZ3bDa+wXWNTDVIw/R8aDVw==}
     peerDependencies:
-      react: ^18.2.0
+      react: ^19.1.0
     dependencies:
       react: 18.2.0
-      react-is: 18.3.1
-      react-shallow-renderer: 16.15.0(react@18.2.0)
-      scheduler: 0.23.2
+      react-is: 19.1.0
+      scheduler: 0.26.0
     dev: true
 
   /react@18.2.0:
@@ -9883,12 +9891,6 @@ packages:
     resolution: {integrity: sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg==}
     dev: false
 
-  /scheduler@0.23.2:
-    resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
-    dependencies:
-      loose-envify: 1.4.0
-    dev: true
-
   /scheduler@0.24.0-canary-efb381bbf-20230505:
     resolution: {integrity: sha512-ABvovCDe/k9IluqSh4/ISoq8tIJnW8euVAWYt5j/bg6dRnqwQwiGO1F/V4AyK96NGF/FB04FhOUDuWj8IKfABA==}
     dependencies:
@@ -9896,6 +9898,10 @@ packages:
 
   /scheduler@0.25.0:
     resolution: {integrity: sha512-xFVuu11jh+xcO7JOAGJNOXld8/TcEHK/4CituBUeUb5hqxJLj9YuemAEuvm9gQ/+pgXYfbQuqAkiYu+u7YEsNA==}
+    dev: true
+
+  /scheduler@0.26.0:
+    resolution: {integrity: sha512-NlHwttCI/l5gCPR3D1nNXtWABUmBwvZpEQiD4IXSbIDq8BzLIK/7Ir5gTFSGZDUu37K5cMNp0hFtzO38sC7gWA==}
     dev: true
 
   /selfsigned@2.4.1:
