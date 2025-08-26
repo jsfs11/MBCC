@@ -11,6 +11,6 @@
     "strict": false,
     "target": "esnext",
     "skipLibCheck": true,
-    "noImplicitAny": false,
+    "noImplicitAny": false
   }
 }
