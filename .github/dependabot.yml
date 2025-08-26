@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # Root package dependencies
+  # Root package dependencies (manages the entire monorepo)
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -9,35 +9,11 @@ updates:
       time: "09:00"
     open-pull-requests-limit: 10
     reviewers:
-      - "maintainer-username"
+      - "jsfs11"
     assignees:
-      - "maintainer-username"
+      - "jsfs11"
     commit-message:
-      prefix: "chore"
-      include: "scope"
-  
-  # Mobile package dependencies
-  - package-ecosystem: "npm"
-    directory: "/packages/mobile"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 5
-    commit-message:
-      prefix: "chore(mobile)"
-      include: "scope"
-  
-  # Server package dependencies
-  - package-ecosystem: "npm"
-    directory: "/packages/server"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 5
-    commit-message:
-      prefix: "chore(server)"
+      prefix: "chore(deps)"
       include: "scope"
 
   # GitHub Actions dependencies
