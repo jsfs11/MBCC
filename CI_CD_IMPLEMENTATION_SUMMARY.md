@@ -57,11 +57,19 @@ This document summarizes the complete implementation of the CI/CD pipeline for t
 
 ### 6. Dependency Management Added
 - **Created `.github/dependabot.yml`**:
-  - ✅ Weekly dependency updates for root, mobile, and server packages
-  - ✅ GitHub Actions dependency updates
-  - ✅ Proper commit message formatting
+  - ✅ Weekly dependency updates for root and GitHub Actions
+  - ✅ Proper commit message formatting with scope prefixes
   - ✅ Reasonable PR limits to avoid spam
   - ✅ Scheduled for Monday mornings
+  - ✅ Fixed maintainer-username with actual GitHub username
+
+### 6.1. Dependabot CI Integration Fixed
+- **Enhanced CI workflow for Dependabot compatibility**:
+  - ✅ Added conditional logic to detect dependabot[bot] actor
+  - ✅ Use `--no-frozen-lockfile` for Dependabot PRs to allow lockfile updates
+  - ✅ Maintain `--frozen-lockfile` for regular PRs for security
+  - ✅ Fixed CI failures on Dependabot dependency updates
+  - ✅ Removed workspace-specific Dependabot configs to prevent lockfile conflicts
 
 ### 7. Branch Protection Documentation
 - **Created `BRANCH_PROTECTION.md`**:
