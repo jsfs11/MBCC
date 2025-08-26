@@ -1,18 +1,18 @@
 module.exports = {
-  preset: 'ts-jest/presets/default-esm',
-  testEnvironment: 'node',
-  extensionsToTreatAsEsm: ['.ts'],
+  preset: "ts-jest/presets/default-esm",
+  testEnvironment: "node",
+  extensionsToTreatAsEsm: [".ts"],
   globals: {
-    'ts-jest': {
+    "ts-jest": {
       useESM: true,
       diagnostics: false,
     },
   },
-  testMatch: ['**/__tests__/**/*.test.(ts|js)'],
+  testMatch: ["**/__tests__/**/*.test.(ts|js)"],
   collectCoverageFrom: [
-    'src/**/*.{ts,js}',
-    '!src/**/*.d.ts',
-    '!src/**/__tests__/**',
+    "src/**/*.{ts,js}",
+    "!src/**/*.d.ts",
+    "!src/**/__tests__/**",
   ],
   coverageThreshold: {
     global: {
@@ -22,8 +22,8 @@ module.exports = {
       statements: 50,
     },
   },
-  coverageReporters: ['text', 'lcov', 'html'],
-  moduleFileExtensions: ['ts', 'js', 'json'],
-  coverageProvider: 'v8',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  coverageReporters: ["text", "lcov", "html"],
+  moduleFileExtensions: ["ts", "js", "json"],
+  coverageProvider: "v8",
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
 };

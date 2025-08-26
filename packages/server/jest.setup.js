@@ -2,7 +2,7 @@
 // This file is executed before each test file
 
 // Set test environment variables
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = "test";
 
 // Mock console methods to reduce noise in tests
 global.console = {

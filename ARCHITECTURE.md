@@ -20,6 +20,7 @@ graph TD
 ```
 
 ## 1. Monorepo Structure
+
 ```
 mbcc/
 ├── packages/
@@ -46,6 +47,7 @@ mbcc/
 ## 2. Root Configuration Files
 
 **turbo.json**:
+
 ```json
 {
   "$schema": "https://turborepo.org/schema.json",
@@ -69,12 +71,14 @@ mbcc/
 ```
 
 **pnpm-workspace.yaml**:
+
 ```yaml
 packages:
-  - 'packages/*'
+  - "packages/*"
 ```
 
 **.gitignore**:
+
 ```
 node_modules/
 dist/
@@ -86,6 +90,7 @@ dist/
 ## 3. Mobile Package (React Native)
 
 **package.json**:
+
 ```json
 {
   "name": "mobile",
@@ -120,6 +125,7 @@ dist/
 ```
 
 **tsconfig.json** (strict mode):
+
 ```json
 {
   "compilerOptions": {
@@ -140,6 +146,7 @@ dist/
 ## 4. Server Package (Node.js)
 
 **package.json**:
+
 ```json
 {
   "name": "server",
@@ -172,6 +179,7 @@ dist/
 ```
 
 **tsconfig.json** (strict mode):
+
 ```json
 {
   "compilerOptions": {
@@ -190,6 +198,7 @@ dist/
 ## 5. Quality Assurance
 
 **ESLint Configuration** (both packages):
+
 - Airbnb base config
 - TypeScript support
 - React hooks rules
@@ -197,6 +206,7 @@ dist/
 - `--max-warnings=0` enforced
 
 **Jest Configuration**:
+
 - 100% test coverage requirement
 - Transformers for TypeScript
 - Mocking for native modules
@@ -232,7 +242,7 @@ sequenceDiagram
     participant Turbo as Turborepo
     participant Mobile as Mobile App
     participant Server as Backend Server
-    
+
     Dev->>Turbo: pnpm run dev
     Turbo->>Mobile: expo start
     Turbo->>Server: ts-node-dev
@@ -241,6 +251,7 @@ sequenceDiagram
 ```
 
 To implement:
+
 1. `pnpm install` - Install dependencies
 2. `pnpm run dev` - Start dev environment
 3. `pnpm run test` - Run all tests

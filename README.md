@@ -95,12 +95,14 @@ pnpm build
 ## 🛠️ Tech Stack
 
 ### Frontend (Mobile)
+
 - React Native 0.74
 - Expo SDK 51
 - TypeScript 5.4
 - Jest + React Native Testing Library
 
 ### Backend (Server)
+
 - Node.js 20
 - Express 4.19
 - Hugging Face Transformers.js
@@ -108,6 +110,7 @@ pnpm build
 - Jest + Supertest
 
 ### DevOps & Tooling
+
 - Turborepo (monorepo management)
 - pnpm (package management)
 - ESLint (code quality)

@@ -1,6 +1,7 @@
 # CI/CD Implementation Plan - Detailed Fixes
 
 ## Overview
+
 This document outlines the specific fixes needed to complete the CI/CD implementation for the MBCC monorepo.
 
 ## Issues Identified
@@ -8,7 +9,9 @@ This document outlines the specific fixes needed to complete the CI/CD implement
 ### 1. Missing Testing Dependencies
 
 #### Mobile Package (`packages/mobile/package.json`)
+
 **Missing Dependencies:**
+
 ```json
 "devDependencies": {
   "@testing-library/react-native": "^12.4.2",
@@ -18,7 +21,9 @@ This document outlines the specific fixes needed to complete the CI/CD implement
 ```
 
 #### Server Package (`packages/server/package.json`)
+
 **Missing Dependencies:**
+
 ```json
 "devDependencies": {
   "@jest/types": "^29.6.3",
@@ -30,11 +35,13 @@ This document outlines the specific fixes needed to complete the CI/CD implement
 ### 2. Turbo Configuration Issues
 
 #### Current `turbo.json` Problems:
+
 - Test task unnecessarily depends on build
 - Missing clean task definition
 - Suboptimal caching configuration
 
 #### Required Changes to `turbo.json`:
+
 ```json
 {
   "$schema": "https://turborepo.org/schema.json",
@@ -64,20 +71,22 @@ This document outlines the specific fixes needed to complete the CI/CD implement
 ### 3. Jest Configuration Improvements
 
 #### Mobile Jest Config (`packages/mobile/jest.config.js`)
+
 **Add:**
+
 ```javascript
 module.exports = {
-  preset: 'react-native',
+  preset: "react-native",
   setupFilesAfterEnv: [
-    '<rootDir>/jest.setup.js',
-    '@testing-library/jest-native/extend-expect'
+    "<rootDir>/jest.setup.js",
+    "@testing-library/jest-native/extend-expect",
   ],
-  testMatch: ['**/__tests__/**/*.test.(ts|tsx|js)'],
+  testMatch: ["**/__tests__/**/*.test.(ts|tsx|js)"],
   collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/__tests__/**',
-    '!src/**/*.stories.{ts,tsx}',
+    "src/**/*.{ts,tsx}",
+    "!src/**/*.d.ts",
+    "!src/**/__tests__/**",
+    "!src/**/*.stories.{ts,tsx}",
   ],
   coverageThreshold: {
     global: {
@@ -87,29 +96,31 @@ module.exports = {
       statements: 85,
     },
   },
-  coverageReporters: ['text', 'lcov', 'html'],
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+  coverageReporters: ["text", "lcov", "html"],
+  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json"],
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
+    "^.+\\.(ts|tsx)$": "ts-jest",
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|expo|@expo|@unimodules)/)',
+    "node_modules/(?!(react-native|@react-native|expo|@expo|@unimodules)/)",
   ],
 };
 ```
 
 #### Server Jest Config (`packages/server/jest.config.js`)
+
 **Add:**
+
 ```javascript
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  testMatch: ['**/__tests__/**/*.test.(ts|js)'],
+  preset: "ts-jest",
+  testEnvironment: "node",
+  testMatch: ["**/__tests__/**/*.test.(ts|js)"],
   collectCoverageFrom: [
-    'src/**/*.{ts,js}',
-    '!src/**/*.d.ts',
-    '!src/**/__tests__/**',
-    '!src/**/index.ts',
+    "src/**/*.{ts,js}",
+    "!src/**/*.d.ts",
+    "!src/**/__tests__/**",
+    "!src/**/index.ts",
   ],
   coverageThreshold: {
     global: {
@@ -119,18 +130,19 @@ module.exports = {
       statements: 85,
     },
   },
-  coverageReporters: ['text', 'lcov', 'html'],
-  moduleFileExtensions: ['ts', 'js', 'json'],
+  coverageReporters: ["text", "lcov", "html"],
+  moduleFileExtensions: ["ts", "js", "json"],
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    "^.+\\.ts$": "ts-jest",
   },
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
 };
 ```
 
 ### 4. GitHub Workflow Enhancements
 
 #### Current Issues in `.github/workflows/ci.yml`:
+
 - Missing mobile build artifacts upload
 - Suboptimal Turborepo caching
 - No conditional job execution for affected packages
@@ -138,6 +150,7 @@ module.exports = {
 #### Required Workflow Updates:
 
 **Add Mobile Build Artifacts:**
+
 ```yaml
 - name: Upload build artifacts (mobile)
   uses: actions/upload-artifact@v4
@@ -148,6 +161,7 @@ module.exports = {
 ```
 
 **Improve Turborepo Caching:**
+
 ```yaml
 - name: Restore Turborepo cache
   uses: actions/cache@v4
@@ -162,6 +176,7 @@ module.exports = {
 ### 5. Additional CI/CD Components
 
 #### Dependabot Configuration (`.github/dependabot.yml`)
+
 ```yaml
 version: 2
 updates:
@@ -174,13 +189,13 @@ updates:
       - "maintainer-username"
     assignees:
       - "maintainer-username"
-  
+
   - package-ecosystem: "npm"
     directory: "/packages/mobile"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
-  
+
   - package-ecosystem: "npm"
     directory: "/packages/server"
     schedule:
@@ -194,6 +209,7 @@ updates:
 ```
 
 #### Branch Protection Documentation
+
 Create `BRANCH_PROTECTION.md` with GitHub repository settings:
 
 ```markdown
@@ -225,19 +241,19 @@ Create `BRANCH_PROTECTION.md` with GitHub repository settings:
 ### 6. Package Version Alignment
 
 #### Root Package.json Issues:
+
 - React Native version mismatch with mobile package
 - Missing workspace configuration optimization
 
 #### Required Updates to Root `package.json`:
+
 ```json
 {
   "name": "mbcc",
   "version": "1.0.0",
   "description": "Mood-Based Content Curator - A Daylio × Spotify Wrapped style app",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": ["packages/*"],
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
@@ -261,21 +277,25 @@ Create `BRANCH_PROTECTION.md` with GitHub repository settings:
 ## Implementation Priority
 
 ### Phase 1: Critical Dependencies (High Priority)
+
 1. ✅ Add missing testing dependencies to mobile package
 2. ✅ Add missing testing dependencies to server package
 3. ✅ Update Jest configurations with proper setup
 
 ### Phase 2: Configuration Optimization (High Priority)
+
 1. ✅ Fix Turbo configuration
 2. ✅ Enhance GitHub workflow
 3. ✅ Add proper caching strategies
 
 ### Phase 3: Additional Components (Medium Priority)
+
 1. ✅ Add Dependabot configuration
 2. ✅ Create branch protection documentation
 3. ✅ Add Jest setup files
 
 ### Phase 4: Testing & Validation (High Priority)
+
 1. ✅ Test CI pipeline with sample commits
 2. ✅ Verify coverage reporting works
 3. ✅ Validate Turborepo caching
@@ -283,6 +303,7 @@ Create `BRANCH_PROTECTION.md` with GitHub repository settings:
 ## Expected Results
 
 After implementation:
+
 - ✅ Complete testing setup for both packages
 - ✅ Optimized CI pipeline with proper caching
 - ✅ 85% code coverage enforcement
@@ -293,6 +314,7 @@ After implementation:
 ## Rollback Plan
 
 If issues arise:
+
 1. Revert package.json changes
 2. Restore original turbo.json
 3. Rollback GitHub workflow changes
@@ -301,6 +323,7 @@ If issues arise:
 ## Testing Strategy
 
 1. **Local Testing:**
+
    ```bash
    pnpm install
    pnpm lint

@@ -1,26 +1,26 @@
+import { StatusBar } from "expo-status-bar";
 import React, {
-  useState,
+  createContext,
+  useCallback,
+  useContext,
   useEffect,
   useMemo,
-  useCallback,
-  createContext,
-  useContext,
+  useState,
 } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
-  Alert,
+  AccessibilityInfo,
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
-  AccessibilityInfo,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { StatusBar } from "expo-status-bar";
 
 // Types
 interface User {
@@ -365,6 +365,21 @@ const OnboardingScreen: React.FC = React.memo(() => {
     [nameError],
   );
 
+  const handleComplete = useCallback(() => {
+    const user: User = {
+      id: Date.now().toString(),
+      name: name.trim(),
+      preferences: {
+        moodTrackingFrequency: frequency,
+        selectedEmojis,
+        notificationsEnabled: true,
+      },
+    };
+
+    setUser(user);
+    completeOnboarding();
+  }, [name, frequency, selectedEmojis, setUser, completeOnboarding]);
+
   const handleNext = useCallback(() => {
     if (currentStep === 0) {
       const error = validateName(name);
@@ -384,22 +399,7 @@ const OnboardingScreen: React.FC = React.memo(() => {
     } else {
       handleComplete();
     }
-  }, [currentStep, name, selectedEmojis, frequency]);
-
-  const handleComplete = useCallback(() => {
-    const user: User = {
-      id: Date.now().toString(),
-      name: name.trim(),
-      preferences: {
-        moodTrackingFrequency: frequency,
-        selectedEmojis,
-        notificationsEnabled: true,
-      },
-    };
-
-    setUser(user);
-    completeOnboarding();
-  }, [name, frequency, selectedEmojis, setUser, completeOnboarding]);
+  }, [currentStep, selectedEmojis.length, name, setError, handleComplete]);
 
   const renderStep = useMemo(() => {
     switch (currentStep) {
@@ -729,7 +729,7 @@ const AppProvider: React.FC<AppProviderProps> = ({
   useEffect(() => {
     if (state.error) {
       Alert.alert("Error", state.error, [
-        { text: "OK", onPress: () => setError(null) },
+        { text: "OK", onPress: (): void => setError(null) },
       ]);
     }
   }, [state.error, setError]);
@@ -754,7 +754,9 @@ const App: React.FC = () => {
       setIsAccessibilityEnabled,
     );
 
-    return () => subscription?.remove();
+    return (): void => {
+      subscription?.remove();
+    };
   }, []);
 
   return (

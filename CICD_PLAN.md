@@ -4,33 +4,33 @@ This plan details the strategy for implementing Continuous Integration and Conti
 
 ## 1. Core Principles
 
-*   **Efficiency:** Leverage Turborepo's caching and incremental builds to minimize CI run times.
-*   **Isolation:** Test and build packages independently where possible, but also ensure integration.
-*   **Automation:** Automate linting, testing, building, and potentially deployment.
-*   **Clarity:** Provide clear feedback on PRs regarding build status, test results, and coverage.
-*   **Scalability:** Design workflows that can adapt as the project grows.
+- **Efficiency:** Leverage Turborepo's caching and incremental builds to minimize CI run times.
+- **Isolation:** Test and build packages independently where possible, but also ensure integration.
+- **Automation:** Automate linting, testing, building, and potentially deployment.
+- **Clarity:** Provide clear feedback on PRs regarding build status, test results, and coverage.
+- **Scalability:** Design workflows that can adapt as the project grows.
 
 ## 2. CI Pipeline Strategy
 
 The CI pipeline will be triggered on pushes to `main` and on every pull request targeting `main`.
 
-*   **Monorepo Awareness:** GitHub Actions will be configured to understand the monorepo structure. Turborepo's `affected` commands will be key to only run tasks on packages that have changed.
-*   **Parallelism:** Jobs for different packages (mobile, server) or different tasks (lint, test, build) can run in parallel where appropriate to speed up the pipeline.
-*   **Caching:**
-    *   **pnpm dependencies:** Cache installed dependencies to speed up setup.
-    *   **Turborepo cache:** Persist Turborepo's remote cache to avoid re-running tasks on unchanged code.
-    *   **Build artifacts:** Cache build outputs if they are needed by subsequent jobs or for deployment.
+- **Monorepo Awareness:** GitHub Actions will be configured to understand the monorepo structure. Turborepo's `affected` commands will be key to only run tasks on packages that have changed.
+- **Parallelism:** Jobs for different packages (mobile, server) or different tasks (lint, test, build) can run in parallel where appropriate to speed up the pipeline.
+- **Caching:**
+  - **pnpm dependencies:** Cache installed dependencies to speed up setup.
+  - **Turborepo cache:** Persist Turborepo's remote cache to avoid re-running tasks on unchanged code.
+  - **Build artifacts:** Cache build outputs if they are needed by subsequent jobs or for deployment.
 
 ## 3. Testing Strategy
 
-*   **Unit & Integration Tests:** Each package (`mobile` and `server`) will have its own Jest test suite.
-*   **Test Execution:** Tests will be run using `turbo run test`. Turborepo will ensure tests are only run for affected packages.
-*   **Code Coverage:**
-    *   Jest will generate code coverage reports.
-    *   **Initial Threshold:** A global threshold of **85%** (lines, statements, functions, branches) will be enforced for both `mobile` and `server` packages.
-    *   **Future Goal:** Incrementally increase this threshold towards 90-100% as the project matures.
-    *   Coverage reports can be uploaded as artifacts and potentially integrated with services like Codecov or Coveralls for better visualization and tracking.
-*   **End-to-End (E2E) Tests (Future Consideration):** While not in the immediate scope, the CI setup should be extensible to include E2E tests for the mobile app (e.g., using Detox or Appium) and API tests for the server.
+- **Unit & Integration Tests:** Each package (`mobile` and `server`) will have its own Jest test suite.
+- **Test Execution:** Tests will be run using `turbo run test`. Turborepo will ensure tests are only run for affected packages.
+- **Code Coverage:**
+  - Jest will generate code coverage reports.
+  - **Initial Threshold:** A global threshold of **85%** (lines, statements, functions, branches) will be enforced for both `mobile` and `server` packages.
+  - **Future Goal:** Incrementally increase this threshold towards 90-100% as the project matures.
+  - Coverage reports can be uploaded as artifacts and potentially integrated with services like Codecov or Coveralls for better visualization and tracking.
+- **End-to-End (E2E) Tests (Future Consideration):** While not in the immediate scope, the CI setup should be extensible to include E2E tests for the mobile app (e.g., using Detox or Appium) and API tests for the server.
 
 ## 4. GitHub Actions Workflow Design
 
@@ -38,38 +38,38 @@ We'll create a main CI workflow file (e.g., `.github/workflows/ci.yml`).
 
 **Workflow Triggers:**
 
-*   `on: [push, pull_request]`
-    *   `push`: branches: `main` (for deployments or release tagging if applicable later)
-    *   `pull_request`: branches: `main`
+- `on: [push, pull_request]`
+  - `push`: branches: `main` (for deployments or release tagging if applicable later)
+  - `pull_request`: branches: `main`
 
 **Key Jobs:**
 
 1.  **`lint` Job:**
-    *   Checks out code.
-    *   Sets up Node.js and pnpm.
-    *   Installs dependencies (with pnpm caching).
-    *   Runs `pnpm lint` (which internally uses `turbo run lint`). This will lint all affected packages.
+    - Checks out code.
+    - Sets up Node.js and pnpm.
+    - Installs dependencies (with pnpm caching).
+    - Runs `pnpm lint` (which internally uses `turbo run lint`). This will lint all affected packages.
 
 2.  **`test` Job:**
-    *   Needs: `lint` (optional, can run in parallel)
-    *   Checks out code.
-    *   Sets up Node.js and pnpm.
-    *   Installs dependencies (with pnpm caching).
-    *   Restores Turborepo remote cache (if available).
-    *   Runs `pnpm test -- --coverage` (which internally uses `turbo run test -- --coverage`). This will run tests for all affected packages and generate coverage reports.
-    *   Enforces the 85% coverage threshold. If tests pass but coverage is below threshold, the job should fail.
-    *   Uploads coverage reports as artifacts.
-    *   Saves Turborepo remote cache.
+    - Needs: `lint` (optional, can run in parallel)
+    - Checks out code.
+    - Sets up Node.js and pnpm.
+    - Installs dependencies (with pnpm caching).
+    - Restores Turborepo remote cache (if available).
+    - Runs `pnpm test -- --coverage` (which internally uses `turbo run test -- --coverage`). This will run tests for all affected packages and generate coverage reports.
+    - Enforces the 85% coverage threshold. If tests pass but coverage is below threshold, the job should fail.
+    - Uploads coverage reports as artifacts.
+    - Saves Turborepo remote cache.
 
 3.  **`build` Job:**
-    *   Needs: `test`
-    *   Checks out code.
-    *   Sets up Node.js and pnpm.
-    *   Installs dependencies (with pnpm caching).
-    *   Restores Turborepo remote cache.
-    *   Runs `pnpm build` (which internally uses `turbo run build`). This will build all affected packages.
-    *   Uploads build artifacts (e.g., `dist` folders for server, Expo build outputs for mobile if applicable at this stage).
-    *   Saves Turborepo remote cache.
+    - Needs: `test`
+    - Checks out code.
+    - Sets up Node.js and pnpm.
+    - Installs dependencies (with pnpm caching).
+    - Restores Turborepo remote cache.
+    - Runs `pnpm build` (which internally uses `turbo run build`). This will build all affected packages.
+    - Uploads build artifacts (e.g., `dist` folders for server, Expo build outputs for mobile if applicable at this stage).
+    - Saves Turborepo remote cache.
 
 **Workflow Visualization (Mermaid Diagram):**
 
@@ -108,9 +108,9 @@ name: Monorepo CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   lint:
@@ -124,8 +124,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Or match your package.json
-          cache: 'pnpm'
+          node-version: "20" # Or match your package.json
+          cache: "pnpm"
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Lint
@@ -143,8 +143,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: "20"
+          cache: "pnpm"
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       # Turborepo Remote Caching (Example using GitHub Actions Cache)
@@ -184,8 +184,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: "20"
+          cache: "pnpm"
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Restore Turborepo cache
@@ -217,49 +217,49 @@ GitHub Actions Cache can be used for Turborepo's remote cache. For more robust o
 
 Create the following files in the `.github` directory:
 
-*   **`.github/PULL_REQUEST_TEMPLATE.md`**:
-    *   Link to related issue(s).
-    *   Summary of changes.
-    *   How to test/verify changes.
-    *   Screenshots/GIFs for UI changes (especially for `mobile`).
-    *   Checklist (e.g., tests added, documentation updated).
+- **`.github/PULL_REQUEST_TEMPLATE.md`**:
+  - Link to related issue(s).
+  - Summary of changes.
+  - How to test/verify changes.
+  - Screenshots/GIFs for UI changes (especially for `mobile`).
+  - Checklist (e.g., tests added, documentation updated).
 
-*   **`.github/ISSUE_TEMPLATE/bug_report.md`**:
-    *   Clear and concise description of the bug.
-    *   Steps to reproduce.
-    *   Expected behavior.
-    *   Actual behavior.
-    *   Environment (e.g., OS, browser, app version, Node.js version).
-    *   Screenshots/logs if applicable.
+- **`.github/ISSUE_TEMPLATE/bug_report.md`**:
+  - Clear and concise description of the bug.
+  - Steps to reproduce.
+  - Expected behavior.
+  - Actual behavior.
+  - Environment (e.g., OS, browser, app version, Node.js version).
+  - Screenshots/logs if applicable.
 
-*   **`.github/ISSUE_TEMPLATE/feature_request.md`**:
-    *   Description of the problem the feature solves.
-    *   Proposed solution/functionality.
-    *   Alternatives considered.
-    *   Additional context.
+- **`.github/ISSUE_TEMPLATE/feature_request.md`**:
+  - Description of the problem the feature solves.
+  - Proposed solution/functionality.
+  - Alternatives considered.
+  - Additional context.
 
-*   **`.github/ISSUE_TEMPLATE/config.yml`** (to configure the "New Issue" chooser):
-    ```yaml
-    blank_issues_enabled: false
-    contact_links:
-      - name: Project Readme
-        url: ./README.md # Adjust if your README is elsewhere or you have a dedicated docs site
-        about: Please check the project documentation first.
-    ```
+- **`.github/ISSUE_TEMPLATE/config.yml`** (to configure the "New Issue" chooser):
+  ```yaml
+  blank_issues_enabled: false
+  contact_links:
+    - name: Project Readme
+      url: ./README.md # Adjust if your README is elsewhere or you have a dedicated docs site
+      about: Please check the project documentation first.
+  ```
 
 ## 6. Additional CI/CD Best Practices
 
-*   **Branch Protection Rules:** Protect the `main` branch. Require status checks (lint, test, build) to pass before merging. Require PR reviews.
-*   **Dependency Updates:** Consider using tools like Dependabot to automate dependency updates and create PRs for them. The CI pipeline will then test these updates.
-*   **Secrets Management:** Use GitHub Actions secrets for any sensitive information (e.g., API keys, deployment tokens) if/when deployment stages are added.
-*   **Notifications:** Configure notifications (e.g., on Slack or email) for failed builds on `main` or important PRs.
-*   **Semantic Versioning & Changelog (Future):** As the project matures, consider automating version bumps and changelog generation (e.g., using `semantic-release`).
-*   **Mobile Specifics:**
-    *   For actual mobile app builds (IPA/APK), dedicated Expo EAS Build or similar services integrated into GitHub Actions would be necessary. This plan focuses on CI (lint, test, JS build) for now.
-    *   Consider matrix builds for different mobile environments if needed later.
-*   **Server Specifics:**
-    *   If deploying the server, the `build` job's artifacts would be used in a subsequent `deploy` job.
-    *   Consider Dockerizing the server application for easier deployment and consistency.
+- **Branch Protection Rules:** Protect the `main` branch. Require status checks (lint, test, build) to pass before merging. Require PR reviews.
+- **Dependency Updates:** Consider using tools like Dependabot to automate dependency updates and create PRs for them. The CI pipeline will then test these updates.
+- **Secrets Management:** Use GitHub Actions secrets for any sensitive information (e.g., API keys, deployment tokens) if/when deployment stages are added.
+- **Notifications:** Configure notifications (e.g., on Slack or email) for failed builds on `main` or important PRs.
+- **Semantic Versioning & Changelog (Future):** As the project matures, consider automating version bumps and changelog generation (e.g., using `semantic-release`).
+- **Mobile Specifics:**
+  - For actual mobile app builds (IPA/APK), dedicated Expo EAS Build or similar services integrated into GitHub Actions would be necessary. This plan focuses on CI (lint, test, JS build) for now.
+  - Consider matrix builds for different mobile environments if needed later.
+- **Server Specifics:**
+  - If deploying the server, the `build` job's artifacts would be used in a subsequent `deploy` job.
+  - Consider Dockerizing the server application for easier deployment and consistency.
 
 ## 7. ✅ Implementation Status (COMPLETED)
 
@@ -274,6 +274,7 @@ Create the following files in the `.github` directory:
 **✅ COMPLETED IMPLEMENTATION** - All components of this CI/CD plan have been successfully implemented with additional enhancements:
 
 ### Key Improvements Made:
+
 - **Enhanced Testing Setup**: Added missing testing libraries and improved Jest configurations
 - **Optimized Caching**: Improved Turborepo caching strategy with better cache keys
 - **Mobile Support**: Added mobile build artifacts and React Native testing support
@@ -281,6 +282,7 @@ Create the following files in the `.github` directory:
 - **Comprehensive Documentation**: Created detailed guides for setup and maintenance
 
 ### Files Created/Modified:
+
 - ✅ `packages/mobile/package.json` - Added testing dependencies
 - ✅ `packages/server/package.json` - Added testing dependencies
 - ✅ `packages/mobile/jest.config.js` - Enhanced configuration
@@ -294,4 +296,5 @@ Create the following files in the `.github` directory:
 - ✅ `package.json` - Added test:coverage script
 
 ### Ready for Production Use
+
 This CI/CD setup now provides a robust, efficient, and scalable foundation for the MBCC monorepo with comprehensive quality gates and automated processes.
