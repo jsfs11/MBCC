@@ -50,12 +50,50 @@ interface ErrorResponse {
 /**
  * Environment configuration
  */
+const DEFAULT_RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes in milliseconds
+const DEFAULT_RATE_LIMIT_MAX = 100; // 100 requests per window
+
+function sanitizeRateLimitValue(
+  value: string | undefined,
+  defaultValue: number,
+  envVar: "RATE_LIMIT_WINDOW" | "RATE_LIMIT_MAX",
+): number {
+  if (typeof value === "undefined") {
+    return defaultValue;
+  }
+
+  const parsedValue = Number(value);
+
+  if (!Number.isFinite(parsedValue) || parsedValue <= 0) {
+    console.warn(
+      JSON.stringify({
+        timestamp: new Date().toISOString(),
+        warning: "Invalid rate limit configuration",
+        variable: envVar,
+        providedValue: value,
+        defaultApplied: defaultValue,
+      }),
+    );
+    return defaultValue;
+  }
+
+  return parsedValue;
+}
+
 const config = {
   port: process.env.PORT || 3000,
   nodeEnv: process.env.NODE_ENV || "development",
   corsOrigin: process.env.CORS_ORIGIN || "*",
-  rateLimitWindow: parseInt(process.env.RATE_LIMIT_WINDOW || "900000"), // 15 minutes
-  rateLimitMax: parseInt(process.env.RATE_LIMIT_MAX || "100"), // 100 requests per window
+  rateLimitWindow: sanitizeRateLimitValue(
+    process.env.RATE_LIMIT_WINDOW,
+    DEFAULT_RATE_LIMIT_WINDOW,
+    "RATE_LIMIT_WINDOW",
+  ),
+  rateLimitMax: sanitizeRateLimitValue(
+    process.env.RATE_LIMIT_MAX,
+    DEFAULT_RATE_LIMIT_MAX,
+    "RATE_LIMIT_MAX",
+  ),
 };
 
 /**
