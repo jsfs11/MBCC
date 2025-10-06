@@ -1,8 +1,10 @@
 import express, { Request, Response, NextFunction, Application } from "express";
 import { pipeline } from "@xenova/transformers";
+import { resolve } from "path";
+import { fileURLToPath } from "url";
 
 // ES module equivalents for __filename and __dirname
-// const __filename = fileURLToPath(import.meta.url); // Commented out as it's not currently used
+const __filename = fileURLToPath(import.meta.url);
 
 /**
  * Type definitions for the application
@@ -485,3 +487,12 @@ async function startServer(): Promise<void> {
 }
 
 export { createApp, startServer };
+
+const entrypoint = process.argv[1] ? resolve(process.argv[1]) : null;
+
+if (entrypoint && entrypoint === __filename) {
+  startServer().catch((error) => {
+    console.error("Unhandled error while starting server:", error);
+    process.exit(1);
+  });
+}
