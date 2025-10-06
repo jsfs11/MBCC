@@ -3,8 +3,22 @@ import { pipeline } from "@xenova/transformers";
 import { resolve } from "path";
 import { fileURLToPath } from "url";
 
-// ES module equivalents for __filename and __dirname
-const __filename = fileURLToPath(import.meta.url);
+// Resolve the current module filename in both ESM and CJS environments without
+// triggering syntax errors when the code is transpiled to CommonJS for tests.
+const importMetaUrl = (() => {
+  try {
+    return eval("import.meta.url") as string;
+  } catch {
+    return undefined;
+  }
+})();
+
+const moduleFilename =
+  typeof __filename !== "undefined"
+    ? __filename
+    : importMetaUrl
+    ? fileURLToPath(importMetaUrl)
+    : undefined;
 
 /**
  * Type definitions for the application
@@ -490,7 +504,7 @@ export { createApp, startServer };
 
 const entrypoint = process.argv[1] ? resolve(process.argv[1]) : null;
 
-if (entrypoint && entrypoint === __filename) {
+if (entrypoint && moduleFilename && entrypoint === moduleFilename) {
   startServer().catch((error) => {
     console.error("Unhandled error while starting server:", error);
     process.exit(1);
