@@ -10,8 +10,8 @@
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node"]
+    "types": ["node", "jest"]
   },
   "include": ["src/**/*"],
-  "exclude": ["dist", "__tests__", "node_modules"]
+  "exclude": ["dist", "__tests__", "node_modules", "tests", "**/*.test.ts"]
 }

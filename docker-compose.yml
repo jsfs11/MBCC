@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # Redis for sentiment caching
+  redis:
+    image: redis:7-alpine
+    container_name: mbcc-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - mbcc-network
+
+  # Server (for production deployment)
+  server:
+    build:
+      context: ./packages/server
+      dockerfile: Dockerfile
+    container_name: mbcc-server
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PORT=3000
+      - CORS_ORIGIN=*
+      - SENTIMENT_CACHE_TTL=604800
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - mbcc-network
+    volumes:
+      - ./logs:/app/logs
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  mbcc-network:
+    driver: bridge

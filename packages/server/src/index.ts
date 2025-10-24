@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction, Application } from "express";
 import { pipeline } from "@xenova/transformers";
 import { resolve } from "path";
 import { fileURLToPath } from "url";
+import { sentimentCache } from "./services/sentimentCache.service";
 
 // Resolve the current module filename in both ESM and CJS environments without
 // triggering syntax errors when the code is transpiled to CommonJS for tests.
@@ -31,6 +32,8 @@ interface SentimentResponse {
   sentiment: "positive" | "negative";
   confidence: number;
   text: string;
+  processingTime?: number;
+  fromCache?: boolean;
 }
 
 interface MoodEntry {
@@ -107,6 +110,7 @@ const moodEntries: MoodEntry[] = [];
 let sentimentPipeline:
   | ((text: string) => Promise<Array<{ label: string; score: number }>>)
   | null = null;
+const MODEL_NAME = "Xenova/distilbert-base-uncased-finetuned-sst-2-english";
 
 /**
  * Initialize the sentiment analysis pipeline
@@ -116,7 +120,7 @@ async function initializeSentimentPipeline(): Promise<void> {
     console.log("Initializing sentiment analysis pipeline...");
     sentimentPipeline = (await pipeline(
       "sentiment-analysis",
-      "Xenova/distilbert-base-uncased-finetuned-sst-2-english",
+      MODEL_NAME,
     )) as unknown as (
       text: string,
     ) => Promise<Array<{ label: string; score: number }>>;
@@ -128,7 +132,7 @@ async function initializeSentimentPipeline(): Promise<void> {
 }
 
 /**
- * Perform sentiment analysis on text
+ * Perform sentiment analysis on text with caching
  */
 async function analyzeSentiment(text: string): Promise<SentimentResponse> {
   if (!sentimentPipeline) {
@@ -136,18 +140,44 @@ async function analyzeSentiment(text: string): Promise<SentimentResponse> {
   }
 
   try {
+    // Check cache first
+    const cached = await sentimentCache.getCachedSentiment(text, MODEL_NAME);
+    if (cached) {
+      console.log("🎯 Cache hit for sentiment analysis");
+      return {
+        sentiment: cached.sentiment as "positive" | "negative",
+        confidence: cached.confidence,
+        text: text.trim(),
+        fromCache: true,
+      };
+    }
+
+    // Perform analysis if not cached
+    console.log("🔄 Computing new sentiment analysis");
+    const startTime = Date.now();
     const result = await sentimentPipeline!(text);
+    const processingTime = Date.now() - startTime;
     const sentiment = result[0];
 
     // Normalize the sentiment label to our expected format
-    const normalizedSentiment =
+    const normalizedSentiment: "positive" | "negative" =
       sentiment.label.toLowerCase() === "positive" ? "positive" : "negative";
 
-    return {
+    const analysisResult: SentimentResponse = {
       sentiment: normalizedSentiment,
       confidence: Math.round(sentiment.score * 100) / 100,
       text: text.trim(),
+      processingTime,
     };
+
+    // Cache the result for future requests
+    await sentimentCache.cacheSentiment(text, {
+      sentiment: normalizedSentiment as "positive" | "negative",
+      confidence: analysisResult.confidence,
+      processingTime,
+    }, MODEL_NAME);
+
+    return analysisResult;
   } catch (error) {
     console.error("Sentiment analysis failed:", error);
     throw new Error("Failed to analyze sentiment");
@@ -357,7 +387,10 @@ function createApp(): Application {
   app.use(rateLimitMiddleware);
 
   // Health check endpoint
-  app.get("/api/health", (req: Request, res: Response) => {
+  app.get("/api/health", async (req: Request, res: Response) => {
+    const cacheStats = await sentimentCache.getStats();
+    const isCacheHealthy = await sentimentCache.isHealthy();
+
     res.json({
       status: "healthy",
       timestamp: new Date().toISOString(),
@@ -365,6 +398,11 @@ function createApp(): Application {
       environment: config.nodeEnv,
       services: {
         sentimentAnalysis: sentimentPipeline ? "ready" : "initializing",
+        cache: {
+          status: isCacheHealthy ? "healthy" : "unhealthy",
+          ...cacheStats,
+          hitRateFormatted: `${cacheStats.hitRate.toFixed(2)}%`,
+        },
       },
     });
   });
@@ -434,6 +472,46 @@ function createApp(): Application {
       limit,
       offset,
     });
+  });
+
+  // Cache management endpoints (admin)
+  app.post("/api/admin/cache/clear", async (req: Request, res: Response) => {
+    try {
+      const clearedCount = await sentimentCache.clearCache();
+      res.json({
+        message: "Cache cleared successfully",
+        clearedEntries: clearedCount,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      res.status(500).json({
+        error: "Failed to clear cache",
+        message: error instanceof Error ? error.message : "Unknown error",
+        timestamp: new Date().toISOString(),
+      });
+    }
+  });
+
+  app.get("/api/admin/cache/stats", async (req: Request, res: Response) => {
+    try {
+      const stats = await sentimentCache.getStats();
+      const memoryInfo = await sentimentCache.getMemoryInfo();
+      const isHealthy = await sentimentCache.isHealthy();
+
+      res.json({
+        ...stats,
+        hitRateFormatted: `${stats.hitRate.toFixed(2)}%`,
+        memoryInfo,
+        isHealthy,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      res.status(500).json({
+        error: "Failed to retrieve cache statistics",
+        message: error instanceof Error ? error.message : "Unknown error",
+        timestamp: new Date().toISOString(),
+      });
+    }
   });
 
   // 404 handler
