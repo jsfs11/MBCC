@@ -12,7 +12,7 @@ interface SentimentResult {
   confidence: number;
   processingTime?: number;
   cachedAt?: string;
-  [key: string]: any; // Allow additional fields
+  [key: string]: unknown; // Allow additional fields
 }
 
 interface CacheStats {
@@ -205,7 +205,7 @@ export class SentimentCacheService {
 
       const results = await this.redis.mget(...keys);
 
-      return results.map((cached, index) => {
+      return results.map((cached) => {
         if (cached) {
           if (this.enableStats) {
             this.incrementStat('hits');
@@ -232,7 +232,7 @@ export class SentimentCacheService {
   private async incrementStat(stat: 'hits' | 'misses'): Promise<void> {
     try {
       await this.redis.incr(`stats:cache_${stat}`);
-    } catch (error) {
+    } catch {
       // Silently fail - stats are not critical
     }
   }
@@ -342,7 +342,7 @@ export class SentimentCacheService {
     try {
       const pong = await this.redis.ping();
       return pong === 'PONG';
-    } catch (error) {
+    } catch {
       return false;
     }
   }
