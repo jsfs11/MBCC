@@ -62,7 +62,7 @@ jobs:
         run: pnpm test -- -- --coverage
 
       - name: Upload coverage reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: coverage-reports
           path: |
@@ -108,14 +108,14 @@ jobs:
         run: pnpm build
 
       - name: Upload build artifacts (server)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: server-build
           path: packages/server/dist/
         if: hashFiles('packages/server/**') != ''
 
       - name: Upload build artifacts (mobile)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: mobile-build
           path: packages/mobile/.expo/
